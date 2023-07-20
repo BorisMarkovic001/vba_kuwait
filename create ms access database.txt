@@ -1,0 +1,95 @@
+#If VBA7 Then
+    Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As LongPtr)
+#Else
+    Private Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
+#End If
+Private Sub mainSheetButton_Click()
+    labelMain.Visible = True
+    labelMain.Caption = "Checking database..."
+    
+    ' Hide the progress bar initially
+    ProgressBar1.Visible = False
+    ProgressBar1.Left = 0 ' Adjust the Left position as needed
+    ProgressBar1.Top = 0  ' Adjust the Top position as needed
+    ProgressBar1.Width = 530 ' Adjust the Width as needed
+    ProgressBar1.Height = 15 ' Adjust the Height as needed
+    ProgressBar1.Value = 0 ' You can adjust the value as needed
+    ProgressBar1.Visible = True
+    ProgressBar1.Activate
+    
+    On Error Resume Next
+    ' Specify the name of the database file
+    Dim dbFileName As String
+    dbFileName = ThisWorkbook.Path & "\" & "company_data.accdb"
+    
+    ' Create a new Access Application object
+    Dim accessApp As Object
+    Set accessApp = CreateObject("Access.Application")
+    
+    ' Check if the database file exists, if not, create it
+    If Dir(dbFileName) = "" Then
+        ' Create a new database
+        accessApp.NewCurrentDatabase dbFileName
+    End If
+    
+    ' Open the database
+    accessApp.OpenCurrentDatabase dbFileName
+    
+    ' Create a new table if it doesn't exist
+    Dim tableName As String
+    tableName = "company_data"
+    
+    If Not TableExists(accessApp, tableName) Then
+        labelMain.Caption = "Creating database..."
+        ' Create the table
+        Dim createTableSQL As String
+        createTableSQL = "CREATE TABLE " & tableName & " (" & _
+                         "ID AUTOINCREMENT PRIMARY KEY, " & _
+                         "secCode TEXT, " & _
+                         "companyNameAr TEXT, " & _
+                         "companyNameEn TEXT, " & _
+                         "nameAr TEXT, " & _
+                         "nameEn TEXT, " & _
+                         "positionAr TEXT, " & _
+                         "positionEn TEXT, " & _
+                         "totalShareBalanceAr TEXT, " & _
+                         "totalShareBalanceEn TEXT, " & _
+                         "recordDate DATETIME);"
+                         
+        accessApp.CurrentDb.Execute createTableSQL
+    End If
+    
+    ' Smoothly show the progress bar
+    For i = 1 To 80 Step 10 ' Adjust the step size as needed (larger value for faster progress)
+        ProgressBar1.Value = i
+        Sleep 100
+    Next i
+    
+    ' Close the database
+    accessApp.CloseCurrentDatabase
+    accessApp.Quit
+    
+    ' Release the Access Application object
+    Set accessApp = Nothing
+    
+    ' Hide the progress bar
+    ProgressBar1.Visible = False
+    ProgressBar1.Value = 0
+    
+    labelMain.Caption = "Database is ready."
+    mainForm.Show
+    labelMain.Caption = "Ready"
+    labelMain.Visible = False
+End Sub
+
+Function TableExists(accessApp As Object, tableName As String) As Boolean
+    ' Check if a table exists in the database
+    On Error Resume Next
+    Dim tdf As Object
+    Set tdf = accessApp.CurrentDb.TableDefs(tableName)
+    On Error GoTo 0
+    
+    TableExists = Not tdf Is Nothing
+End Function
+
+

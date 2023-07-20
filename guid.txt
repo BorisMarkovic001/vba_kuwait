@@ -1,0 +1,9 @@
+guide from https://stackoverflow.com/questions/57216623/using-google-chrome-in-selenium-vba-installation-steps
+1. download selenium from https://github.com/florentbr/SeleniumBasic/releases/download/v2.0.9.0/SeleniumBasic-2.0.9.0.exe
+2. install SeleniumBasic-2.0.9.0.exe
+3. download latest or current chrome version chromedriver 'chromedriver_win32.zip' from https://sites.google.com/a/chromium.org/chromedriver/downloads
+4. extract chromedriver.exe from chromedriver_win32.zip
+5. copy chromedriver.exe to C:\Program Files\SeleniumBasic or C:\Users\%username%\AppData\Local\SeleniumBasic
+6. goto vba macro IDE in excel(alt+F11) and Tools>>References>> check 'Selenium Type Library' and 'Microsoft HTML Object Library'
+restart machine.
+
